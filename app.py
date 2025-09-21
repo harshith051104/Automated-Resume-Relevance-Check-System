@@ -8,6 +8,12 @@ from dotenv import load_dotenv
 import asyncio
 from typing import List, Dict, Any
 import json
+import time
+import logging
+from urllib.parse import quote
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Import custom modules
 from src.parsers.resume_parser import ResumeParser
@@ -18,6 +24,84 @@ from src.utils.helpers import format_score, generate_verdict
 
 # Load environment variables
 load_dotenv()
+
+# Rate limiting for Gemini API
+if 'api_call_times' not in st.session_state:
+    st.session_state.api_call_times = []
+
+def wait_for_rate_limit():
+    """Implement rate limiting for Gemini API (max 10 requests per minute for free tier)"""
+    current_time = time.time()
+    
+    # Remove calls older than 1 minute
+    st.session_state.api_call_times = [
+        call_time for call_time in st.session_state.api_call_times 
+        if current_time - call_time < 60
+    ]
+    
+    # If we've made 9 or more calls in the last minute, wait
+    if len(st.session_state.api_call_times) >= 9:
+        oldest_call = min(st.session_state.api_call_times)
+        wait_time = 60 - (current_time - oldest_call) + 1  # Add 1 second buffer
+        if wait_time > 0:
+            st.warning(f"⏳ Rate limit protection: Waiting {wait_time:.1f} seconds to avoid quota exceeded error...")
+            time.sleep(wait_time)
+    
+    # Record this API call
+    st.session_state.api_call_times.append(current_time)
+
+def evaluate_without_vectors(resume_text: str, jd_text: str, jd_parsed: Dict[str, Any]) -> Dict[str, Any]:
+    """Basic text-based evaluation without vector embeddings or AI"""
+    from src.scoring.hard_match import HardMatcher
+    
+    try:
+        # Use hard matching for basic scoring
+        hard_matcher = HardMatcher()
+        hard_score = hard_matcher.calculate_match_score(resume_text, jd_parsed)
+        
+        # Simple text overlap scoring
+        resume_words = set(resume_text.lower().split())
+        jd_words = set(jd_text.lower().split())
+        overlap_score = len(resume_words.intersection(jd_words)) / len(jd_words.union(resume_words)) * 100
+        
+        # Combine scores
+        final_score = (hard_score * 0.7) + (overlap_score * 0.3)
+        
+        # Generate simple verdict
+        if final_score >= 75:
+            verdict = "Strong Match"
+        elif final_score >= 60:
+            verdict = "Good Match"
+        elif final_score >= 40:
+            verdict = "Moderate Match"
+        else:
+            verdict = "Weak Match"
+        
+        return {
+            "relevance_score": min(100, max(0, final_score)),
+            "verdict": verdict,
+            "suggestions": [
+                "Basic text matching used - full AI analysis unavailable",
+                "Consider retrying when service is restored"
+            ],
+            "detailed_analysis": {
+                "skills_match": {"score": hard_score, "details": "Hard matching only"},
+                "experience_match": {"score": overlap_score, "details": "Text overlap analysis"},
+                "education_match": {"score": 0, "details": "Analysis unavailable"}
+            }
+        }
+    except Exception as e:
+        # Ultimate fallback - return neutral score
+        return {
+            "relevance_score": 25,
+            "verdict": "Unable to Evaluate",
+            "suggestions": ["Please try again later", "Check system status"],
+            "detailed_analysis": {
+                "skills_match": {"score": 0, "details": "Evaluation failed"},
+                "experience_match": {"score": 0, "details": "Evaluation failed"},
+                "education_match": {"score": 0, "details": "Evaluation failed"}
+            }
+        }
 
 # Initialize LangSmith for observability
 import os
@@ -44,7 +128,11 @@ def run_async(coro):
             loop.close()
 
 def safe_evaluate_resume(resume_text: str, jd_text: str, jd_parsed: Dict[str, Any]) -> Dict[str, Any]:
-    """Safely evaluate resume with fallback to sync method"""
+    """Safely evaluate resume with rate limiting and fallback options"""
+    
+    # Apply rate limiting before making API calls
+    wait_for_rate_limit()
+    
     try:
         # Try async evaluation first
         return run_async(
@@ -55,8 +143,35 @@ def safe_evaluate_resume(resume_text: str, jd_text: str, jd_parsed: Dict[str, An
             )
         )
     except Exception as e:
-        st.warning(f"Async evaluation failed ({str(e)}), using synchronous fallback...")
-        # Fallback to synchronous evaluation
+        error_msg = str(e)
+        
+        # Handle specific quota exceeded errors
+        if "quota" in error_msg.lower() or "429" in error_msg:
+            st.error("🚫 **Google Gemini API Quota Exceeded**")
+            st.warning("⏳ Please wait a moment and try again. The free tier has limits of 10 requests per minute.")
+            st.info("💡 **Tip**: For heavy batch processing, consider upgrading to a paid Google AI API plan.")
+            
+            # Return a basic evaluation without AI
+            return {
+                "relevance_score": 50,  # Neutral score
+                "verdict": "Unable to evaluate - API quota exceeded",
+                "suggestions": ["Please try again in a few minutes", "Consider upgrading your Google AI API plan for unlimited usage"],
+                "detailed_analysis": {
+                    "skills_match": {"score": 0, "details": "API quota exceeded"},
+                    "experience_match": {"score": 0, "details": "API quota exceeded"},
+                    "education_match": {"score": 0, "details": "API quota exceeded"}
+                }
+            }
+        
+        # Handle ChromaDB errors
+        elif "chromadb" in error_msg.lower():
+            st.warning("⚠️ Vector database temporarily unavailable, using basic text matching...")
+            return evaluate_without_vectors(resume_text, jd_text, jd_parsed)
+        
+        # General fallback
+        else:
+            st.warning(f"⚠️ Primary evaluation failed ({error_msg[:100]}...), using fallback method...")
+            return evaluate_without_vectors(resume_text, jd_text, jd_parsed)
         return evaluate_resume_sync(resume_text, jd_text, jd_parsed)
 
 # Synchronous evaluation function as fallback

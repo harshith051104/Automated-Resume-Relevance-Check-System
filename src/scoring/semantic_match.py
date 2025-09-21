@@ -5,8 +5,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import asyncio
 import re
-import chromadb
-from chromadb.utils import embedding_functions
+
+# Make ChromaDB optional
+try:
+    import chromadb
+    from chromadb.utils import embedding_functions
+    CHROMADB_AVAILABLE = True
+except ImportError:
+    CHROMADB_AVAILABLE = False
+    chromadb = None
+    print("Warning: ChromaDB not available. Using TF-IDF fallback for semantic matching.")
 
 class SemanticMatcher:
     def __init__(self):
@@ -19,64 +27,77 @@ class SemanticMatcher:
             ngram_range=(1, 2)
         )
         
-        # Initialize ChromaDB
-        self.chroma_client = chromadb.PersistentClient(path="./chroma_db")
-        self.embedding_function = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
-            api_key=None  # Uses environment variable GOOGLE_API_KEY
-        )
-        
-        # Create or get collection
-        try:
-            self.collection = self.chroma_client.get_collection(
-                name="resume_jd_embeddings",
-                embedding_function=self.embedding_function
-            )
-        except:
-            self.collection = self.chroma_client.create_collection(
-                name="resume_jd_embeddings",
-                embedding_function=self.embedding_function,
-                metadata={"description": "Resume and JD embeddings for semantic matching"}
-            )
+        # Initialize ChromaDB only if available
+        if CHROMADB_AVAILABLE:
+            try:
+                self.chroma_client = chromadb.PersistentClient(path="./chroma_db")
+                self.embedding_function = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
+                    api_key=None  # Uses environment variable GOOGLE_API_KEY
+                )
+                
+                # Create or get collection
+                try:
+                    self.collection = self.chroma_client.get_collection(
+                        name="resume_jd_embeddings",
+                        embedding_function=self.embedding_function
+                    )
+                except:
+                    self.collection = self.chroma_client.create_collection(
+                        name="resume_jd_embeddings",
+                        embedding_function=self.embedding_function,
+                        metadata={"description": "Resume and JD embeddings for semantic matching"}
+                    )
+                self.chromadb_enabled = True
+            except Exception as e:
+                print(f"Warning: ChromaDB initialization failed: {e}")
+                self.chromadb_enabled = False
+        else:
+            self.chromadb_enabled = False
     
     async def calculate_embedding_similarity(
         self,
         text1: str,
         text2: str
     ) -> float:
-        """Calculate semantic similarity using embeddings with ChromaDB"""
+        """Calculate semantic similarity using embeddings with ChromaDB fallback"""
         
-        try:
-            # Store embeddings in ChromaDB
-            doc_id1 = f"text1_{hash(text1)}"
-            doc_id2 = f"text2_{hash(text2)}"
-            
-            # Add documents to collection
-            self.collection.upsert(
-                documents=[text1, text2],
-                ids=[doc_id1, doc_id2],
-                metadatas=[{"type": "text1"}, {"type": "text2"}]
-            )
-            
-            # Query similar documents
-            results = self.collection.query(
-                query_texts=[text1],
-                n_results=2,
-                include=['distances']
-            )
-            
-            # Calculate similarity (distance to similarity conversion)
-            if len(results['distances'][0]) > 1:
-                distance = results['distances'][0][1]  # Distance to text2
-                similarity = max(0, 1 - distance)  # Convert distance to similarity
-                return similarity * 100
-            else:
-                # Fallback to direct embedding calculation
-                embeddings = await self.embeddings_model.aembed_documents([text1, text2])
-                similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-                return similarity * 100
-            
-        except Exception as e:
-            print(f"Error calculating embedding similarity: {e}")
+        # Use ChromaDB if available, otherwise fallback to TF-IDF
+        if self.chromadb_enabled:
+            try:
+                # Store embeddings in ChromaDB
+                doc_id1 = f"text1_{hash(text1)}"
+                doc_id2 = f"text2_{hash(text2)}"
+                
+                # Add documents to collection
+                self.collection.upsert(
+                    documents=[text1, text2],
+                    ids=[doc_id1, doc_id2],
+                    metadatas=[{"type": "text1"}, {"type": "text2"}]
+                )
+                
+                # Query similar documents
+                results = self.collection.query(
+                    query_texts=[text1],
+                    n_results=2,
+                    include=['distances']
+                )
+                
+                # Calculate similarity (distance to similarity conversion)
+                if len(results['distances'][0]) > 1:
+                    distance = results['distances'][0][1]  # Distance to text2
+                    similarity = max(0, 1 - distance)  # Convert distance to similarity
+                    return similarity * 100
+                else:
+                    # Fallback to direct embedding calculation
+                    embeddings = await self.embeddings_model.aembed_documents([text1, text2])
+                    similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+                    return similarity * 100
+                    
+            except Exception as e:
+                print(f"ChromaDB error: {e}. Falling back to TF-IDF...")
+                return self.calculate_tfidf_similarity(text1, text2)
+        else:
+            # Use TF-IDF when ChromaDB is not available
             return self.calculate_tfidf_similarity(text1, text2)
     
     def calculate_tfidf_similarity(
