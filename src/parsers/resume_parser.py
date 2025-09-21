@@ -9,6 +9,11 @@ from nltk.corpus import stopwords
 from nltk.tag import pos_tag
 from nltk.chunk import ne_chunk
 from nltk.tree import Tree
+import fitz  # PyMuPDF - more robust PDF parsing
+import logging
+
+# Configure logging for better error tracking
+logging.basicConfig(level=logging.INFO)
 
 class ResumeParser:
     def __init__(self):
@@ -36,52 +41,109 @@ class ResumeParser:
                             print(f"📥 Downloading NLTK data: {data}")
                             nltk.download(data, quiet=True)
     
-    def extract_text(self, file) -> str:
-        """Extract text from uploaded file"""
-        text = ""
-        
+    def extract_text_with_pymupdf(self, file_bytes: bytes) -> str:
+        """Extract text using PyMuPDF as fallback"""
         try:
-            if file.type == "application/pdf":
-                try:
-                    pdf_reader = PyPDF2.PdfReader(BytesIO(file.read()))
-                    if len(pdf_reader.pages) == 0:
-                        return "Error: PDF file appears to be empty or corrupted (no pages found)."
+            import fitz  # PyMuPDF
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+            
+            if doc.page_count == 0:
+                doc.close()
+                return None
+                
+            text = ""
+            for page_num in range(doc.page_count):
+                page = doc[page_num]
+                page_text = page.get_text()
+                if page_text.strip():
+                    text += page_text + "\n"
+            
+            doc.close()
+            return text.strip() if text.strip() else None
+            
+        except ImportError:
+            return None
+        except Exception as e:
+            logging.warning(f"PyMuPDF parsing failed: {str(e)}")
+            return None
+
+    def extract_text_with_pdfplumber(self, file_bytes: bytes) -> str:
+        """Extract text using pdfplumber as another fallback"""
+        try:
+            import pdfplumber
+            
+            with pdfplumber.open(BytesIO(file_bytes)) as pdf:
+                if len(pdf.pages) == 0:
+                    return None
                     
+                text = ""
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text and page_text.strip():
+                        text += page_text + "\n"
+                        
+                return text.strip() if text.strip() else None
+                
+        except ImportError:
+            return None
+        except Exception as e:
+            logging.warning(f"pdfplumber parsing failed: {str(e)}")
+            return None
+
+    def extract_text(self, file) -> str:
+        """Extract text from uploaded file with multiple fallback methods"""
+        text = ""
+        file_bytes = file.read()
+        
+        if file.type == "application/pdf":
+            # Method 1: Try PyPDF2 first
+            try:
+                file.seek(0)  # Reset file pointer
+                pdf_reader = PyPDF2.PdfReader(BytesIO(file_bytes))
+                
+                if len(pdf_reader.pages) == 0:
+                    logging.warning("PDF has no pages")
+                else:
                     for page in pdf_reader.pages:
                         page_text = page.extract_text()
-                        if page_text.strip():  # Only add non-empty pages
+                        if page_text and page_text.strip():
                             text += page_text + "\n"
                     
-                    if not text.strip():
-                        return "Error: Could not extract readable text from PDF. The file may be image-based or corrupted."
+                    if text.strip():
+                        logging.info("✅ PDF extracted successfully with PyPDF2")
+                        return self.clean_text(text)
                         
-                except PyPDF2.errors.EmptyFileError:
-                    return "Error: PDF file is empty or corrupted."
-                except PyPDF2.errors.PdfReadError as e:
-                    return f"Error: Unable to read PDF file. {str(e)}"
-                except Exception as e:
-                    return f"Error: Unexpected error reading PDF. {str(e)}"
+            except Exception as e:
+                logging.warning(f"PyPDF2 failed: {str(e)}")
             
-            elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                try:
-                    text = docx2txt.process(BytesIO(file.read()))
-                    if not text.strip():
-                        return "Error: Could not extract text from Word document. The file may be empty or corrupted."
-                except Exception as e:
-                    return f"Error: Unable to read Word document. {str(e)}"
+            # Method 2: Try PyMuPDF fallback
+            pymupdf_text = self.extract_text_with_pymupdf(file_bytes)
+            if pymupdf_text:
+                logging.info("✅ PDF extracted successfully with PyMuPDF fallback")
+                return self.clean_text(pymupdf_text)
             
-            else:
-                return f"Error: Unsupported file type '{file.type}'. Please upload a PDF or Word document."
-                
-        except Exception as e:
-            return f"Error: Failed to process file. {str(e)}"
+            # Method 3: Try pdfplumber fallback
+            pdfplumber_text = self.extract_text_with_pdfplumber(file_bytes)
+            if pdfplumber_text:
+                logging.info("✅ PDF extracted successfully with pdfplumber fallback")
+                return self.clean_text(pdfplumber_text)
+            
+            # All methods failed
+            return "Error: Unable to extract text from PDF. The file may be corrupted, password-protected, or image-based."
         
-        # Clean the extracted text
-        cleaned_text = self.clean_text(text)
-        if not cleaned_text.strip():
-            return "Error: No readable text found in the file. The document may be image-based or corrupted."
-            
-        return cleaned_text
+        elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            try:
+                file.seek(0)  # Reset file pointer
+                text = docx2txt.process(BytesIO(file_bytes))
+                if text and text.strip():
+                    return self.clean_text(text)
+                else:
+                    return "Error: Could not extract text from Word document. The file may be empty or corrupted."
+            except Exception as e:
+                return f"Error: Unable to read Word document. {str(e)}"
+        
+        else:
+            return f"Error: Unsupported file type '{file.type}'. Please upload a PDF or Word document."
     
     def clean_text(self, text: str) -> str:
         """Clean and normalize text"""

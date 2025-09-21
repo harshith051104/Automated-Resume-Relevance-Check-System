@@ -2,6 +2,8 @@
 streamlit
 pandas
 plotly
+matplotlib
+seaborn
 python-dotenv
 
 # LangChain ecosystem - compatible versions
@@ -21,6 +23,7 @@ PyPDF2
 python-docx
 docx2txt
 pymupdf
+pdfplumber
 
 # Vector database and embeddings
 chromadb
