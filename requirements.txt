@@ -1,50 +1,49 @@
 # Essential packages optimized for Python 3.10 and Streamlit Cloud
-streamlit==1.28.0
-pandas==2.1.0
-plotly==5.17.0
-python-dotenv==1.0.0
+streamlit
+pandas
+plotly
+python-dotenv
 
-# LangChain ecosystem - using specific versions to avoid conflicts
-langchain==0.3.0
-langchain-core==0.3.0
-langchain-google-genai==2.0.0
-langgraph==0.3.29
-langsmith==0.1.77
-langchain-community==0.3.0
+# LangChain ecosystem - compatible versions
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-google-genai>=2.0.0
+langgraph>=0.3.29
+langsmith
+langchain-community>=0.3.0
 
-# ML and NLP - pre-compiled wheels preferred
-numpy==1.24.4
-scikit-learn==1.3.0
-spacy==3.7.2
-thinc==8.1.12
+# ML and NLP - let pip resolve compatible versions
+numpy>=1.24.0
+scikit-learn>=1.3.0
+spacy>=3.7.0
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 
 # Document processing
-PyPDF2==3.0.1
-python-docx==1.1.0
-docx2txt==0.8
-pymupdf==1.23.5
+PyPDF2
+python-docx
+docx2txt
+pymupdf
 
 # Vector database and embeddings
-chromadb==0.4.15
+chromadb
 
 # Text processing and matching
-nltk==3.8.1
-rank-bm25==0.2.2
-fuzzywuzzy==0.18.0
-python-levenshtein==0.21.1
+nltk
+rank-bm25
+fuzzywuzzy
+python-levenshtein
 
 # Google AI and API
-google-generativeai==0.3.0
+google-generativeai
 
 # Utilities
-aiofiles==23.2.0
-python-multipart==0.0.6
-Pillow==10.0.0
-openpyxl==3.1.2
-tqdm==4.66.1
-pydantic==2.4.0
-beautifulsoup4==4.12.2
-requests==2.31.0
-nest_asyncio==1.5.7
+aiofiles
+python-multipart
+Pillow
+openpyxl
+tqdm
+pydantic>=2.7.4
+beautifulsoup4
+requests
+nest_asyncio
 
