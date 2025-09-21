@@ -1062,12 +1062,11 @@ elif page == "📄 Resume Evaluation":
                                 st.metric("Experience Match", evaluation_result.get('experience_match', 'N/A'))
             
             with col2:
+                st.markdown("### 📊 Analysis Panel")
+                
                 if st.session_state.evaluations:
                     latest_eval = st.session_state.evaluations[-1]
                     
-                    st.markdown("### 📊 Detailed Analysis")
-                    
-                    # Skills Gap Analysis
                     st.markdown("#### Missing Skills")
                     missing_skills = latest_eval.get('missing_skills', [])
                     if missing_skills:
@@ -1090,6 +1089,26 @@ elif page == "📄 Resume Evaluation":
                     for rec in recommendations[:3]:
                         st.markdown(f"• {rec}")
                     st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    # Show content when no evaluations exist yet
+                    st.info("📈 **Evaluation Results Will Appear Here**")
+                    st.markdown("#### 🎯 What You'll See:")
+                    st.markdown("""
+                    - **Missing Skills** - Skills from JD not found in resume
+                    - **Matched Skills** - Skills successfully identified  
+                    - **Recommendations** - AI-generated improvement suggestions
+                    """)
+                    
+                    st.markdown("#### 📋 Evaluation Metrics:")
+                    st.markdown("""
+                    - **Relevance Score** - Overall match percentage
+                    - **Hard Match Score** - Exact keyword matches
+                    - **Semantic Match Score** - Contextual similarity
+                    - **Experience Match** - Role relevance assessment
+                    """)
+                    
+                    st.markdown("#### 🔍 How to Start:")
+                    st.markdown("👈 Upload a resume file on the left to begin evaluation")
         
         with tab2:
             st.markdown("### Batch Resume Upload")
