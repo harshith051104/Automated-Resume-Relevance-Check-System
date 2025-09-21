@@ -1562,6 +1562,36 @@ elif page == "👥 Batch Processing":
                                 st.markdown(f"#### {role} ({len(role_shortlist)} candidates)")
                                 for _, candidate in role_shortlist.iterrows():
                                     st.write(f"• **{candidate['file']}** - Score: **{candidate['score']:.1f}** - {candidate['verdict']}")
+        else:
+            # No job descriptions available
+            st.warning("⚠️ **No Job Descriptions Available**")
+            st.info("""
+            🔄 **To use Batch Processing:**
+            1. Go to the "📝 Job Description" tab
+            2. Upload and parse at least one job description
+            3. Return here to configure batch processing
+            """)
+            
+            # Show alternative single evaluation option
+            st.markdown("### Alternative: Single Resume Evaluation")
+            st.info("""
+            💡 **For now, you can:**
+            - Use the "🎯 Evaluation" tab for single resume evaluation
+            - Upload a job description first, then evaluate individual resumes
+            """)
+            
+            # Quick JD upload option
+            st.markdown("### Quick Job Description Upload")
+            quick_jd_file = st.file_uploader(
+                "Upload a Job Description to get started",
+                type=['pdf', 'docx', 'txt'],
+                help="Upload a job description to enable batch processing",
+                key="batch_quick_jd"
+            )
+            
+            if quick_jd_file:
+                if st.button("📤 Upload & Parse JD", type="primary"):
+                    st.info("📝 Processing... Please switch to the 'Job Description' tab to complete the setup.")
     
     with col2:
         st.markdown("### Batch Processing Tips")
