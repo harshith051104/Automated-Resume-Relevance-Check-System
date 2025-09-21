@@ -1,4 +1,2 @@
-# System-level packages for Streamlit Cloud
-# This ensures spaCy models are available
 python3-dev
 build-essential
