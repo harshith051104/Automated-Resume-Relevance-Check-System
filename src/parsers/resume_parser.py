@@ -128,8 +128,24 @@ class ResumeParser:
                 logging.info("✅ PDF extracted successfully with pdfplumber fallback")
                 return self.clean_text(pdfplumber_text)
             
-            # All methods failed
-            return "Error: Unable to extract text from PDF. The file may be corrupted, password-protected, or image-based."
+            # All methods failed - provide detailed debugging info
+            file_info = f"Size: {len(file_bytes)} bytes"
+            if len(file_bytes) == 0:
+                return "Error: PDF file is completely empty (0 bytes)."
+            elif not file_bytes.startswith(b'%PDF'):
+                return f"Error: File is not a valid PDF format (missing PDF header). {file_info}"
+            else:
+                # Try to get more info about why it failed
+                try:
+                    pdf_reader = PyPDF2.PdfReader(BytesIO(file_bytes), strict=False)
+                    if pdf_reader.is_encrypted:
+                        return f"Error: PDF is password-protected. Please remove password and try again. {file_info}"
+                    elif len(pdf_reader.pages) == 0:
+                        return f"Error: PDF contains no pages. {file_info}"
+                    else:
+                        return f"Error: PDF parsing failed - may be image-based or corrupted. Try converting to Word format. {file_info}"
+                except Exception as e:
+                    return f"Error: PDF is corrupted or uses unsupported format. {file_info} - {str(e)[:100]}"
         
         elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             try:

@@ -1119,7 +1119,28 @@ elif page == "📄 Resume Evaluation":
                         
                         # Skip files that couldn't be processed
                         if resume_text.startswith("Error:"):
-                            st.warning(f"Skipping {file.name}: {resume_text}")
+                            error_details = resume_text.replace("Error: ", "")
+                            st.warning(f"⚠️ **Skipping {file.name}**")
+                            st.error(f"📄 Issue: {error_details}")
+                            
+                            # Provide specific suggestions based on error type
+                            if "empty or corrupted" in error_details.lower():
+                                st.info("💡 **Suggestions:** Try re-saving the PDF, converting to Word format, or check if the file is password-protected")
+                            elif "password-protected" in error_details.lower():
+                                st.info("� **Suggestion:** Remove password protection from the PDF and try again")
+                            elif "image-based" in error_details.lower():
+                                st.info("� **Suggestion:** This appears to be a scanned PDF. Try using OCR software or convert to text-based format")
+                            elif "missing PDF header" in error_details.lower():
+                                st.info("🚫 **Suggestion:** File may be corrupted or not a valid PDF. Try re-downloading or re-saving the file")
+                            elif "0 bytes" in error_details.lower():
+                                st.info("📭 **Suggestion:** File appears to be empty. Check the original file and re-upload")
+                            else:
+                                st.info("🔄 **Suggestions:** Try converting to Word format (.docx) or re-saving the PDF from the original application")
+                            
+                            # Show file info for debugging
+                            if hasattr(file, 'size'):
+                                st.caption(f"📊 File info: {file.size} bytes")
+                            
                             continue
                         
                         evaluation_result = safe_evaluate_resume(
@@ -1438,7 +1459,28 @@ elif page == "👥 Batch Processing":
                             
                             # Skip files that couldn't be processed
                             if resume_text.startswith("Error:"):
-                                st.warning(f"Skipping {file.name}: {resume_text}")
+                                error_details = resume_text.replace("Error: ", "")
+                                st.warning(f"⚠️ **Skipping {file.name}**")
+                                st.error(f"📄 Issue: {error_details}")
+                                
+                                # Provide specific suggestions based on error type
+                                if "empty or corrupted" in error_details.lower():
+                                    st.info("💡 **Suggestions:** Try re-saving the PDF, converting to Word format, or check if the file is password-protected")
+                                elif "password-protected" in error_details.lower():
+                                    st.info("� **Suggestion:** Remove password protection from the PDF and try again")
+                                elif "image-based" in error_details.lower():
+                                    st.info("� **Suggestion:** This appears to be a scanned PDF. Try using OCR software or convert to text-based format")
+                                elif "missing PDF header" in error_details.lower():
+                                    st.info("🚫 **Suggestion:** File may be corrupted or not a valid PDF. Try re-downloading or re-saving the file")
+                                elif "0 bytes" in error_details.lower():
+                                    st.info("📭 **Suggestion:** File appears to be empty. Check the original file and re-upload")
+                                else:
+                                    st.info("🔄 **Suggestions:** Try converting to Word format (.docx) or re-saving the PDF from the original application")
+                                
+                                # Show file info for debugging
+                                if hasattr(file, 'size'):
+                                    st.caption(f"📊 File info: {file.size} bytes")
+                                
                                 continue
                             
                             evaluation_result = safe_evaluate_resume(
