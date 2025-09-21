@@ -12,11 +12,9 @@ langgraph>=0.3.29
 langsmith
 langchain-community>=0.3.0
 
-# ML and NLP - let pip resolve compatible versions
+# ML and NLP - NO spaCy to avoid compilation issues
 numpy>=1.24.0
 scikit-learn>=1.3.0
-spacy>=3.7.0
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 
 # Document processing
 PyPDF2

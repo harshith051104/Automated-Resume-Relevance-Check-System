@@ -4,44 +4,10 @@ import re
 from typing import Dict, Any, List
 from io import BytesIO
 
-# Graceful spaCy import with fallback
-try:
-    import spacy
-    SPACY_AVAILABLE = True
-except ImportError as e:
-    print(f"spaCy not available: {e}")
-    SPACY_AVAILABLE = False
-
 class ResumeParser:
     def __init__(self):
         self.nlp = None
-        
-        if SPACY_AVAILABLE:
-            try:
-                self.nlp = spacy.load("en_core_web_sm")
-                print("✅ spaCy model 'en_core_web_sm' loaded successfully")
-            except OSError as e:
-                print(f"⚠️ spaCy model 'en_core_web_sm' not found: {e}")
-                print("🔄 Attempting to download the model...")
-                try:
-                    import subprocess
-                    result = subprocess.run(
-                        ["python", "-m", "spacy", "download", "en_core_web_sm"],
-                        capture_output=True, text=True, timeout=300
-                    )
-                    if result.returncode == 0:
-                        self.nlp = spacy.load("en_core_web_sm")
-                        print("✅ Successfully downloaded and loaded spaCy model.")
-                    else:
-                        raise Exception(f"Failed to download model: {result.stderr}")
-                except Exception as download_error:
-                    print(f"❌ Failed to download spaCy model: {download_error}")
-                    print("🔄 Falling back to basic text processing without NLP features...")
-            except Exception as e:
-                print(f"❌ Unexpected error loading spaCy: {e}")
-                print("🔄 Falling back to basic text processing...")
-        else:
-            print("⚠️ spaCy not available - using basic text processing only")
+        print("✅ ResumeParser initialized with basic text processing (no spaCy dependency)")
     
     def extract_text(self, file) -> str:
         """Extract text from uploaded file"""

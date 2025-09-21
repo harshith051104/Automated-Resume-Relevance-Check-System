@@ -1,8 +1,1 @@
 python3-dev
-build-essential
-gcc
-g++
-make
-cmake
-python3-setuptools
-python3-wheel
