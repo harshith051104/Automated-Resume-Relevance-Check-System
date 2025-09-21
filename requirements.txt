@@ -1,4 +1,4 @@
-# Essential packages only
+# Essential packages optimized for Python 3.10
 streamlit
 pandas
 plotly
@@ -12,7 +12,7 @@ chromadb
 pymupdf
 python-docx
 docx2txt
-spacy
+spacy>=3.7.0
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 nltk
 scikit-learn
@@ -23,7 +23,7 @@ google-generativeai
 Pillow
 openpyxl
 tqdm
-pydantic
+pydantic>=2.0.0
 beautifulsoup4
 requests
 rank-bm25
