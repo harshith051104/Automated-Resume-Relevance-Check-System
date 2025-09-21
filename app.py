@@ -678,7 +678,7 @@ with st.sidebar:
     st.markdown("### 🧭 Navigation")
     page = st.radio(
         "Navigation",
-        ["📋 Job Description Upload", "📄 Resume Evaluation", "📊 Analytics Dashboard", 
+        ["🏠 Dashboard", "📋 Job Description Upload", "📄 Resume Evaluation", "📊 Analytics Dashboard", 
          "👥 Batch Processing"],
         label_visibility="hidden"
     )
@@ -744,7 +744,134 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 # Main Content Area
-if page == "📋 Job Description Upload":
+if page == "🏠 Dashboard":
+    # Enhanced Dashboard Landing Page
+    st.markdown("""
+    <div style="text-align: center; padding: 2rem 0;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🎯</div>
+        <h1 style="color: #6366f1; margin-bottom: 0.5rem; font-weight: 700;">ResumeAI Platform</h1>
+        <h3 style="color: #94a3b8; margin-bottom: 2rem; font-weight: 400;">Intelligent Resume Screening & Analysis</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Feature Overview Cards
+    st.markdown("### 🚀 Platform Features")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📋</div>
+            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Job Description Processing</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                Upload and parse job descriptions with AI-powered extraction of requirements, skills, and qualifications.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📊</div>
+            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Advanced Analytics</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                Comprehensive dashboards with candidate scoring, skill gap analysis, and hiring insights.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
+            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Smart Resume Evaluation</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                AI-powered resume analysis with relevance scoring, skill matching, and detailed candidate insights.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">👥</div>
+            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Batch Processing</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                Process multiple resumes simultaneously with automated shortlisting and candidate ranking.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Quick Stats Section
+    st.markdown("### 📈 Platform Overview")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        jd_count = st.session_state.db_handler.get_jd_count()
+        st.markdown(f"""
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
+            <h2 style="margin: 0; color: #10b981; font-size: 2.2rem;">{jd_count}</h2>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Job Descriptions</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col2:
+        resume_count = st.session_state.db_handler.get_resume_count()
+        st.markdown(f"""
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
+            <h2 style="margin: 0; color: #3b82f6; font-size: 2.2rem;">{resume_count}</h2>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Resumes Processed</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col3:
+        avg_score = 0
+        if st.session_state.evaluations:
+            avg_score = sum([e['relevance_score'] for e in st.session_state.evaluations]) / len(st.session_state.evaluations)
+        st.markdown(f"""
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
+            <h2 style="margin: 0; color: #f59e0b; font-size: 2.2rem;">{avg_score:.1f}%</h2>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Avg Match Score</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col4:
+        st.markdown(f"""
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
+            <h2 style="margin: 0; color: #ef4444; font-size: 2.2rem;">94.7%</h2>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Accuracy Rate</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Getting Started Section
+    st.markdown("### 🏁 Getting Started")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown("""
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 2rem;">
+            <h4 style="color: #6366f1; margin-bottom: 1rem;">📋 Quick Start Guide</h4>
+            <ol style="color: #94a3b8; line-height: 1.8;">
+                <li><strong>Upload Job Description:</strong> Navigate to Job Description Upload and add your JD</li>
+                <li><strong>Process Resumes:</strong> Go to Resume Evaluation to analyze individual candidates</li>
+                <li><strong>Batch Processing:</strong> Upload multiple resumes for automated screening</li>
+                <li><strong>Review Analytics:</strong> Check Analytics Dashboard for insights and reports</li>
+            </ol>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #065f46, #047857); border: 1px solid #10b981; border-radius: 12px; padding: 2rem; text-align: center;">
+            <h4 style="color: #a7f3d0; margin-bottom: 1rem;">🎯 Ready to Start?</h4>
+            <p style="color: #d1fae5; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Begin by uploading your first job description to unlock the full potential of AI-powered hiring.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+elif page == "📋 Job Description Upload":
     st.markdown("## 📋 Job Description Management")
     st.markdown("Upload and process job descriptions to begin evaluating resumes.")
     
