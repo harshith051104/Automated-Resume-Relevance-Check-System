@@ -28,3 +28,5 @@ requests
 rank-bm25
 fuzzywuzzy
 python-levenshtein
+streamlit
+PyPDF2
