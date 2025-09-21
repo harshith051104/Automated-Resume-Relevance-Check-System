@@ -313,16 +313,16 @@ st.markdown("""
     }
     
     .upload-area {
-        background: #1e293b;
-        border: 2px solid #6366f1;
+        background: transparent;
+        border: none;
         border-radius: 12px;
-        padding: 2rem;
-        margin: 1rem 0;
+        padding: 1rem;
+        margin: 0.5rem 0;
         color: #f1f5f9;
     }
     
     .upload-area:hover {
-        border-color: #4f46e5;
+        background: rgba(99, 102, 241, 0.1);
     }
     
     .stButton > button {
@@ -951,6 +951,7 @@ elif page == "📄 Resume Evaluation":
     
     if not st.session_state.current_jd:
         st.warning("⚠️ Please upload a Job Description first from the JD Upload page")
+        st.info("👈 Navigate to the **📝 Job Description** tab to upload and set a job description first.")
     else:
         st.info(f"📌 **Active Job:** {st.session_state.current_jd['role']} at {st.session_state.current_jd['company']}")
         
@@ -960,7 +961,6 @@ elif page == "📄 Resume Evaluation":
             col1, col2 = st.columns([3, 2])
             
             with col1:
-                st.markdown('<div class="upload-area">', unsafe_allow_html=True)
                 st.markdown("### 📄 Upload Resume for Evaluation")
                 st.markdown("Upload a resume in PDF or DOCX format to get an AI-powered evaluation.")
                 
@@ -969,7 +969,6 @@ elif page == "📄 Resume Evaluation":
                     type=['pdf', 'docx'],
                     help="Supported formats: PDF, DOCX"
                 )
-                st.markdown('</div>', unsafe_allow_html=True)
                 
                 if resume_file:
                     with st.spinner("Extracting resume content..."):
