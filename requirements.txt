@@ -31,3 +31,4 @@ python-levenshtein
 streamlit
 PyPDF2
 langchain-community
+nest_asyncio
