@@ -47,5 +47,4 @@ pydantic>=2.7.4
 beautifulsoup4
 requests
 nest_asyncio
-matplotlib
 seaborn

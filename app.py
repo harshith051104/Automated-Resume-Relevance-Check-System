@@ -1342,6 +1342,18 @@ elif page == "👥 Batch Processing":
                     
                     st.success(f"✅ Batch processing complete! {total_operations} evaluations performed.")
                     
+                    # Display results summary first
+                    if results:
+                        st.markdown("### Processing Summary")
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Total Files", len(set(r['file'] for r in results)))
+                        with col2:
+                            st.metric("Total Jobs", len(set(r['role'] for r in results)))
+                        with col3:
+                            avg_score = sum(r['score'] for r in results) / len(results)
+                            st.metric("Average Score", f"{avg_score:.1f}")
+                    
                     # Display results
                     df_results = pd.DataFrame(results)
                     
@@ -1364,11 +1376,35 @@ elif page == "👥 Batch Processing":
                         st.markdown("### Auto-generated Shortlist")
                         shortlist = df_results[df_results['score'] >= min_score_threshold].sort_values('score', ascending=False)
                         
-                        for role in shortlist['role'].unique():
-                            role_shortlist = shortlist[shortlist['role'] == role]
-                            st.markdown(f"#### {role}")
-                            for _, candidate in role_shortlist.iterrows():
-                                st.write(f"• {candidate['file']} - Score: {candidate['score']:.1f}")
+                        if len(shortlist) == 0:
+                            st.warning(f"No candidates meet the minimum score threshold of {min_score_threshold}.")
+                            st.info("**Suggestions:**")
+                            st.write("• Lower the minimum score threshold")
+                            st.write("• Check the current score distribution:")
+                            
+                            # Show score distribution
+                            score_stats = df_results['score'].describe()
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Highest Score", f"{score_stats['max']:.1f}")
+                            with col2:
+                                st.metric("Average Score", f"{score_stats['mean']:.1f}")
+                            with col3:
+                                st.metric("Lowest Score", f"{score_stats['min']:.1f}")
+                            
+                            # Show top candidates regardless of threshold
+                            st.markdown("#### Top Candidates (Regardless of Threshold)")
+                            top_candidates = df_results.sort_values('score', ascending=False).head(5)
+                            for _, candidate in top_candidates.iterrows():
+                                st.write(f"• **{candidate['file']}** ({candidate['role']}) - Score: **{candidate['score']:.1f}**")
+                        else:
+                            st.success(f"Found {len(shortlist)} candidates meeting the threshold of {min_score_threshold}+")
+                            
+                            for role in shortlist['role'].unique():
+                                role_shortlist = shortlist[shortlist['role'] == role]
+                                st.markdown(f"#### {role} ({len(role_shortlist)} candidates)")
+                                for _, candidate in role_shortlist.iterrows():
+                                    st.write(f"• **{candidate['file']}** - Score: **{candidate['score']:.1f}** - {candidate['verdict']}")
     
     with col2:
         st.markdown("### Batch Processing Tips")
