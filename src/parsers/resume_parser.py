@@ -3,11 +3,38 @@ import docx2txt
 import re
 from typing import Dict, Any, List
 from io import BytesIO
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.tag import pos_tag
+from nltk.chunk import ne_chunk
+from nltk.tree import Tree
 
 class ResumeParser:
     def __init__(self):
-        self.nlp = None
-        print("✅ ResumeParser initialized with basic text processing (no spaCy dependency)")
+        self._download_nltk_data()
+        self.stop_words = set(stopwords.words('english'))
+        print("✅ ResumeParser initialized with NLTK for enhanced text processing")
+    
+    def _download_nltk_data(self):
+        """Download required NLTK data"""
+        required_data = ['punkt', 'stopwords', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words']
+        
+        for data in required_data:
+            try:
+                nltk.data.find(f'tokenizers/{data}')
+            except LookupError:
+                try:
+                    nltk.data.find(f'corpora/{data}')
+                except LookupError:
+                    try:
+                        nltk.data.find(f'taggers/{data}')
+                    except LookupError:
+                        try:
+                            nltk.data.find(f'chunkers/{data}')
+                        except LookupError:
+                            print(f"📥 Downloading NLTK data: {data}")
+                            nltk.download(data, quiet=True)
     
     def extract_text(self, file) -> str:
         """Extract text from uploaded file"""
@@ -77,25 +104,135 @@ class ResumeParser:
         return phones[0] if phones else ""
     
     def extract_skills(self, text: str) -> List[str]:
-        """Extract skills from text"""
-        # Common technical skills (expand this list)
-        skill_patterns = [
-            'python', 'java', 'javascript', 'react', 'node', 'sql', 'mongodb',
-            'machine learning', 'deep learning', 'data science', 'aws', 'docker',
-            'kubernetes', 'git', 'agile', 'scrum', 'tensorflow', 'pytorch'
-        ]
+        """Extract skills from text using NLTK and pattern matching"""
+        # Enhanced skill patterns with synonyms
+        skill_patterns = {
+            'python': ['python', 'py', 'python3', 'python2'],
+            'java': ['java', 'jvm', 'java8', 'java11'],
+            'javascript': ['javascript', 'js', 'es6', 'ecmascript'],
+            'react': ['react', 'reactjs', 'react.js'],
+            'node': ['node', 'nodejs', 'node.js'],
+            'sql': ['sql', 'mysql', 'postgresql', 'sqlite', 'tsql'],
+            'mongodb': ['mongodb', 'mongo', 'nosql'],
+            'machine learning': ['machine learning', 'ml', 'machine-learning'],
+            'deep learning': ['deep learning', 'dl', 'neural networks'],
+            'data science': ['data science', 'data scientist', 'data analysis'],
+            'aws': ['aws', 'amazon web services', 'amazon cloud'],
+            'docker': ['docker', 'containerization', 'containers'],
+            'kubernetes': ['kubernetes', 'k8s', 'container orchestration'],
+            'git': ['git', 'github', 'gitlab', 'version control'],
+            'agile': ['agile', 'scrum', 'kanban'],
+            'tensorflow': ['tensorflow', 'tf', 'keras'],
+            'pytorch': ['pytorch', 'torch'],
+            'angular': ['angular', 'angularjs', 'angular.js'],
+            'vue': ['vue', 'vuejs', 'vue.js'],
+            'c++': ['c++', 'cpp', 'c plus plus'],
+            'c#': ['c#', 'csharp', 'c sharp'],
+            'azure': ['azure', 'microsoft azure'],
+            'gcp': ['gcp', 'google cloud', 'google cloud platform']
+        }
         
-        text_lower = text.lower()
+        # Tokenize text using NLTK
+        tokens = word_tokenize(text.lower())
+        
+        # Remove stopwords
+        filtered_tokens = [token for token in tokens if token not in self.stop_words]
+        
         found_skills = []
+        text_lower = text.lower()
         
-        for skill in skill_patterns:
-            if skill in text_lower:
-                found_skills.append(skill)
+        # Check for skill patterns
+        for skill, variants in skill_patterns.items():
+            for variant in variants:
+                if variant in text_lower:
+                    found_skills.append(skill)
+                    break
         
         return found_skills
     
+    def extract_entities(self, text: str) -> Dict[str, List[str]]:
+        """Extract named entities using NLTK"""
+        entities = {
+            'persons': [],
+            'organizations': [],
+            'locations': [],
+            'dates': []
+        }
+        
+        try:
+            # Tokenize and tag parts of speech
+            tokens = word_tokenize(text)
+            pos_tags = pos_tag(tokens)
+            
+            # Named entity chunking
+            chunks = ne_chunk(pos_tags)
+            
+            for chunk in chunks:
+                if isinstance(chunk, Tree):
+                    entity_name = ' '.join([token for token, pos in chunk.leaves()])
+                    if chunk.label() == 'PERSON':
+                        entities['persons'].append(entity_name)
+                    elif chunk.label() in ['ORGANIZATION', 'GPE']:
+                        entities['organizations'].append(entity_name)
+                    elif chunk.label() in ['GPE', 'LOCATION']:
+                        entities['locations'].append(entity_name)
+            
+            # Extract dates using regex
+            date_patterns = [
+                r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b',  # MM/DD/YYYY or MM-DD-YYYY
+                r'\b\d{4}[/-]\d{1,2}[/-]\d{1,2}\b',    # YYYY/MM/DD or YYYY-MM-DD
+                r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2}, \d{4}\b',  # Month DD, YYYY
+                r'\b\d{4}\b'  # Just year
+            ]
+            
+            for pattern in date_patterns:
+                dates = re.findall(pattern, text, re.IGNORECASE)
+                entities['dates'].extend(dates)
+                
+        except Exception as e:
+            print(f"⚠️ Entity extraction error: {e}")
+        
+        return entities
+    
+    def extract_education(self, text: str) -> List[str]:
+        """Extract education information using NLTK and patterns"""
+        education_keywords = [
+            'bachelor', 'master', 'phd', 'doctorate', 'diploma', 'degree',
+            'university', 'college', 'institute', 'school', 'education',
+            'b.s', 'b.a', 'm.s', 'm.a', 'mba', 'ph.d'
+        ]
+        
+        education_info = []
+        sentences = sent_tokenize(text)
+        
+        for sentence in sentences:
+            sentence_lower = sentence.lower()
+            if any(keyword in sentence_lower for keyword in education_keywords):
+                education_info.append(sentence.strip())
+        
+        return education_info
+    
+    def extract_experience(self, text: str) -> List[str]:
+        """Extract work experience using NLTK and patterns"""
+        experience_keywords = [
+            'experience', 'worked', 'employed', 'position', 'role',
+            'company', 'organization', 'years', 'months'
+        ]
+        
+        experience_info = []
+        sentences = sent_tokenize(text)
+        
+        for sentence in sentences:
+            sentence_lower = sentence.lower()
+            # Look for sentences with experience indicators and time periods
+            if (any(keyword in sentence_lower for keyword in experience_keywords) and
+                re.search(r'\b\d+\s*(year|month|yr|mo)', sentence_lower)):
+                experience_info.append(sentence.strip())
+        
+        return experience_info
+
     def parse_sections(self, text: str) -> Dict[str, str]:
-        """Parse resume into sections"""
+        """Parse resume into sections using NLTK-enhanced detection"""
         sections = {
             'education': '',
             'experience': '',
@@ -130,3 +267,57 @@ class ResumeParser:
                 sections[current_section] += line + '\n'
         
         return sections
+    
+    def parse(self, file) -> Dict[str, Any]:
+        """Main parsing method using NLTK-enhanced processing"""
+        # Extract text from file
+        text = self.extract_text(file)
+        
+        if text.startswith("Error:"):
+            return {"error": text}
+        
+        try:
+            # Basic information extraction
+            parsed_data = {
+                'text': text,
+                'email': self.extract_email(text),
+                'phone': self.extract_phone(text),
+                'skills': self.extract_skills(text),
+                'sections': self.parse_sections(text)
+            }
+            
+            # NLTK-enhanced extraction
+            entities = self.extract_entities(text)
+            parsed_data['entities'] = entities
+            parsed_data['education_sentences'] = self.extract_education(text)
+            parsed_data['experience_sentences'] = self.extract_experience(text)
+            
+            # Extract potential name from entities
+            if entities['persons']:
+                parsed_data['candidate_name'] = entities['persons'][0]
+            else:
+                parsed_data['candidate_name'] = "Not found"
+            
+            # Extract companies from entities
+            parsed_data['companies'] = entities['organizations']
+            
+            # Extract locations
+            parsed_data['locations'] = entities['locations']
+            
+            # Extract dates
+            parsed_data['dates'] = entities['dates']
+            
+            # Text statistics using NLTK
+            tokens = word_tokenize(text)
+            sentences = sent_tokenize(text)
+            
+            parsed_data['statistics'] = {
+                'word_count': len([token for token in tokens if token.isalpha()]),
+                'sentence_count': len(sentences),
+                'total_tokens': len(tokens)
+            }
+            
+            return parsed_data
+            
+        except Exception as e:
+            return {"error": f"Parsing failed: {str(e)}"}
