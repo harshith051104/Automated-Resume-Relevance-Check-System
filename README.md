@@ -35,21 +35,30 @@ A modern, AI-powered web application for evaluating the relevance of resumes aga
 ## 📦 Installation
 
 1. **Clone the repository**
+<<<<<<< HEAD
 
+=======
+>>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
    ```sh
    git clone https://github.com/<your-username>/<repo-name>.git
    cd <repo-name>
    ```
 
 2. **Create a virtual environment**
+<<<<<<< HEAD
 
+=======
+>>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
    ```sh
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
+<<<<<<< HEAD
 
+=======
+>>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
    ```sh
    pip install -r requirements.txt
    ```
@@ -85,6 +94,7 @@ BATCH_PROCESSING_LIMIT=100
 
 ---
 
+<<<<<<< HEAD
 ## 🚀 Deployment on Streamlit Cloud
 
 ### Prerequisites
@@ -142,6 +152,11 @@ BATCH_PROCESSING_LIMIT=100
 
 1. **Run the Streamlit app**
 
+=======
+## 🖥️ Usage
+
+1. **Run the Streamlit app**
+>>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
    ```sh
    streamlit run app.py
    ```
@@ -169,10 +184,15 @@ BATCH_PROCESSING_LIMIT=100
 .
 ├── app.py
 ├── requirements.txt
+<<<<<<< HEAD
 ├── packages.txt
 ├── .env.example
 ├── .gitignore
 ├── README.md
+=======
+├── .env.example
+├── .gitignore
+>>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
 ├── src/
 │   ├── parsers/
 │   │   ├── resume_parser.py
@@ -208,12 +228,15 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ---
 
+<<<<<<< HEAD
 ## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
+=======
+>>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
 ## 🙏 Acknowledgements
 
 - [Streamlit](https://streamlit.io/)
