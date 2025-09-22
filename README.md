@@ -7,7 +7,7 @@ A modern, AI-powered web application for evaluating the relevance of resumes aga
 ## 🚀 Features
 
 - **Job Description Parsing**: Extracts and analyzes single or multiple job descriptions from PDF/DOCX files.
-- **Resume Parsing**: Extracts text, skills, and entities from resumes (PDF/DOCX) using spaCy.
+- **Resume Parsing**: Extracts text, skills, and entities from resumes (PDF/DOCX) using NLTK.
 - **AI-Powered Evaluation**: Uses LLMs (Google Gemini), semantic embeddings, and keyword/BM25/fuzzy matching for robust scoring.
 - **Weighted Scoring**: Combines hard and semantic matches for a final relevance score.
 - **Batch Processing**: Evaluate multiple resumes at once.
@@ -23,7 +23,7 @@ A modern, AI-powered web application for evaluating the relevance of resumes aga
 - **Frontend**: Streamlit (with custom CSS for dark mode)
 - **Backend/Orchestration**: Python, LangChain, LangGraph
 - **LLM**: Google Gemini (via LangChain)
-- **NLP**: spaCy
+- **NLP**: NLTK
 - **Keyword Matching**: TF-IDF, BM25, FuzzyWuzzy
 - **Semantic Search**: Google AI Embeddings, ChromaDB
 - **Database**: SQLite (via SQLAlchemy)
