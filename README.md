@@ -147,7 +147,6 @@ BATCH_PROCESSING_LIMIT=100
 ## 🖥️ Usage
 
 1. **Run the Streamlit app**
->>>>>>> 78fa01b97742b30198b158e950eb4dd4057f88be
    ```sh
    streamlit run app.py
    ```
