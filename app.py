@@ -756,25 +756,26 @@ if page == "🏠 Dashboard":
     
     # Feature Overview Cards
     st.markdown("### 🚀 Platform Features")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2, gap="large")
     
     with col1:
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📋</div>
-            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Job Description Processing</h4>
-            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; height: 220px; display: flex; flex-direction: column;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center;">📋</div>
+            <h4 style="color: #6366f1; margin-bottom: 1rem; text-align: center; font-weight: 600;">Job Description Processing</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; text-align: center; flex-grow: 1; display: flex; align-items: center; justify-content: center;">
                 Upload and parse job descriptions with AI-powered extraction of requirements, skills, and qualifications.
             </p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📊</div>
-            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Advanced Analytics</h4>
-            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; height: 220px; display: flex; flex-direction: column;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center;">📊</div>
+            <h4 style="color: #6366f1; margin-bottom: 1rem; text-align: center; font-weight: 600;">Advanced Analytics</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; text-align: center; flex-grow: 1; display: flex; align-items: center; justify-content: center;">
                 Comprehensive dashboards with candidate scoring, skill gap analysis, and hiring insights.
             </p>
         </div>
@@ -782,45 +783,47 @@ if page == "🏠 Dashboard":
     
     with col2:
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
-            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Smart Resume Evaluation</h4>
-            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; height: 220px; display: flex; flex-direction: column;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center;">🎯</div>
+            <h4 style="color: #6366f1; margin-bottom: 1rem; text-align: center; font-weight: 600;">Smart Resume Evaluation</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; text-align: center; flex-grow: 1; display: flex; align-items: center; justify-content: center;">
                 AI-powered resume analysis with relevance scoring, skill matching, and detailed candidate insights.
             </p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin: 1rem 0; height: 200px;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">👥</div>
-            <h4 style="color: #6366f1; margin-bottom: 0.8rem;">Batch Processing</h4>
-            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; height: 220px; display: flex; flex-direction: column;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center;">👥</div>
+            <h4 style="color: #6366f1; margin-bottom: 1rem; text-align: center; font-weight: 600;">Batch Processing</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; text-align: center; flex-grow: 1; display: flex; align-items: center; justify-content: center;">
                 Process multiple resumes simultaneously with automated shortlisting and candidate ranking.
             </p>
         </div>
         """, unsafe_allow_html=True)
     
     # Quick Stats Section
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### 📈 Platform Overview")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4, gap="medium")
     
     with col1:
         jd_count = st.session_state.db_handler.get_jd_count()
         st.markdown(f"""
-        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
-            <h2 style="margin: 0; color: #10b981; font-size: 2.2rem;">{jd_count}</h2>
-            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Job Descriptions</p>
+        <div style="background: linear-gradient(135deg, #065f46, #047857); border: 1px solid #10b981; border-radius: 12px; text-align: center; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h2 style="margin: 0; color: #a7f3d0; font-size: 2.5rem; font-weight: 700;">{jd_count}</h2>
+            <p style="margin: 0.5rem 0 0 0; color: #d1fae5; font-size: 1rem; font-weight: 500;">Job Descriptions</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col2:
         resume_count = st.session_state.db_handler.get_resume_count()
         st.markdown(f"""
-        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
-            <h2 style="margin: 0; color: #3b82f6; font-size: 2.2rem;">{resume_count}</h2>
-            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Resumes Processed</p>
+        <div style="background: linear-gradient(135deg, #1e40af, #3b82f6); border: 1px solid #60a5fa; border-radius: 12px; text-align: center; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h2 style="margin: 0; color: #dbeafe; font-size: 2.5rem; font-weight: 700;">{resume_count}</h2>
+            <p style="margin: 0.5rem 0 0 0; color: #bfdbfe; font-size: 1rem; font-weight: 500;">Resumes Processed</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -829,43 +832,46 @@ if page == "🏠 Dashboard":
         if st.session_state.evaluations:
             avg_score = sum([e['relevance_score'] for e in st.session_state.evaluations]) / len(st.session_state.evaluations)
         st.markdown(f"""
-        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
-            <h2 style="margin: 0; color: #f59e0b; font-size: 2.2rem;">{avg_score:.1f}%</h2>
-            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Avg Match Score</p>
+        <div style="background: linear-gradient(135deg, #d97706, #f59e0b); border: 1px solid #fbbf24; border-radius: 12px; text-align: center; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h2 style="margin: 0; color: #fef3c7; font-size: 2.5rem; font-weight: 700;">{avg_score:.1f}%</h2>
+            <p style="margin: 0.5rem 0 0 0; color: #fed7aa; font-size: 1rem; font-weight: 500;">Avg Match Score</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col4:
         st.markdown(f"""
-        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; text-align: center; padding: 1.5rem;">
-            <h2 style="margin: 0; color: #ef4444; font-size: 2.2rem;">94.7%</h2>
-            <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Accuracy Rate</p>
+        <div style="background: linear-gradient(135deg, #7c2d12, #dc2626); border: 1px solid #f87171; border-radius: 12px; text-align: center; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h2 style="margin: 0; color: #fecaca; font-size: 2.5rem; font-weight: 700;">94.7%</h2>
+            <p style="margin: 0.5rem 0 0 0; color: #fca5a5; font-size: 1rem; font-weight: 500;">Accuracy Rate</p>
         </div>
         """, unsafe_allow_html=True)
     
     # Getting Started Section
+    st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown("### 🏁 Getting Started")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([2, 1], gap="large")
     
     with col1:
         st.markdown("""
-        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 2rem;">
-            <h4 style="color: #6366f1; margin-bottom: 1rem;">📋 Quick Start Guide</h4>
-            <ol style="color: #94a3b8; line-height: 1.8;">
-                <li><strong>Upload Job Description:</strong> Navigate to Job Description Upload and add your JD</li>
-                <li><strong>Process Resumes:</strong> Go to Resume Evaluation to analyze individual candidates</li>
-                <li><strong>Batch Processing:</strong> Upload multiple resumes for automated screening</li>
-                <li><strong>Review Analytics:</strong> Check Analytics Dashboard for insights and reports</li>
+        <div style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 16px; padding: 2.5rem; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);">
+            <h4 style="color: #6366f1; margin-bottom: 1.5rem; font-size: 1.3rem; font-weight: 600;">📋 Quick Start Guide</h4>
+            <ol style="color: #cbd5e1; line-height: 2; font-size: 1rem; margin-left: 1rem;">
+                <li style="margin-bottom: 0.8rem;"><strong style="color: #e2e8f0;">Upload Job Description:</strong> Navigate to Job Description Upload and add your JD</li>
+                <li style="margin-bottom: 0.8rem;"><strong style="color: #e2e8f0;">Process Resumes:</strong> Go to Resume Evaluation to analyze individual candidates</li>
+                <li style="margin-bottom: 0.8rem;"><strong style="color: #e2e8f0;">Batch Processing:</strong> Upload multiple resumes for automated screening</li>
+                <li><strong style="color: #e2e8f0;">Review Analytics:</strong> Check Analytics Dashboard for insights and reports</li>
             </ol>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #065f46, #047857); border: 1px solid #10b981; border-radius: 12px; padding: 2rem; text-align: center;">
-            <h4 style="color: #a7f3d0; margin-bottom: 1rem;">🎯 Ready to Start?</h4>
-            <p style="color: #d1fae5; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <div style="background: linear-gradient(135deg, #065f46, #047857); border: 1px solid #10b981; border-radius: 16px; padding: 2.5rem; text-align: center; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+            <h4 style="color: #a7f3d0; margin-bottom: 1rem; font-size: 1.2rem; font-weight: 600;">Ready to Start?</h4>
+            <p style="color: #d1fae5; margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">
                 Begin by uploading your first job description to unlock the full potential of AI-powered hiring.
             </p>
         </div>
